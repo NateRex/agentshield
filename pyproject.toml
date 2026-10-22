@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentshield"
+version = "0.1.0"
+description = "A security testing and reliability platform designed specifically for agentic AI systems."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "agent-framework-core==1.22.0",
+  "agent-framework-openai==1.17.0",
+  "cloudpickle==3.1.2",
+]
+
+[project.scripts]
+agentshield = "agentshield.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+  "pytest==9.1.1",
+  "pytest-asyncio==1.4.0"
+]
