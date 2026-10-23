@@ -14,5 +14,6 @@ jobs:
         with:
           enable-cache: true
       - run: uv python install 3.12
-      - run: uv sync --locked --python 3.12
-      - run: uv run --locked pytest
+      - run: uv sync --locked --extra maf --python 3.12
+      - run: uv run --locked --extra maf mypy src/agentshield
+      - run: uv run --locked --extra maf pytest

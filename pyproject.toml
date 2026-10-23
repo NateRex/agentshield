@@ -8,10 +8,12 @@ version = "0.1.0"
 description = "A security testing and reliability platform designed specifically for agentic AI systems."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
+dependencies = []
+
+[project.optional-dependencies]
+maf = [
   "agent-framework-core==1.22.0",
   "agent-framework-openai==1.17.0",
-  "cloudpickle==3.1.2",
 ]
 
 [project.scripts]
@@ -26,5 +28,10 @@ testpaths = ["tests"]
 [dependency-groups]
 dev = [
   "pytest==9.1.1",
-  "pytest-asyncio==1.4.0"
+  "pytest-asyncio==1.4.0",
+  "mypy>=1.15,<2",
 ]
+
+[tool.mypy]
+files = ["src/agentshield"]
+check_untyped_defs = true
