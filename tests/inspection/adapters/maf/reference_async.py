@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from agentshield import target_factory
-from tests.reference_sync import build
+from tests.inspection.adapters.maf.reference_sync import build
 
 
 async def construct():

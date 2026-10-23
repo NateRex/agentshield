@@ -4,7 +4,7 @@ import os
 import time
 
 from agentshield import target_factory
-from tests.reference_sync import build, lookup
+from tests.inspection.adapters.maf.reference_sync import build, lookup
 from agent_framework import FunctionTool, MCPStreamableHTTPTool
 
 

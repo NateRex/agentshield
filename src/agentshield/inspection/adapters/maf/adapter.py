@@ -1,9 +1,10 @@
 """MAF-specific metadata discovery; never opens integrations or invokes tools."""
 
 import inspect
-import re
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any
+
+from agentshield.core.identity import validate_identity
 
 # Keep the extra in pyproject.toml in sync; expand only after compatibility checks.
 SUPPORTED_VERSIONS = {"agent-framework-core": "1.22.0", "agent-framework-openai": "1.17.0"}
@@ -21,12 +22,6 @@ def check_versions() -> None:
                 f"Unsupported {package} {installed}; expected {expected}. "
                 "Install the tested pair with pip install 'agentshield[maf]'."
             )
-
-
-def validate_identity(value: str) -> None:
-    """Reject ambiguous qualification separators and empty or unstable names."""
-    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_.-]+", value):
-        raise ValueError(f"Invalid logical identity {value!r}; use letters, digits, _, . or -")
 
 
 async def close(agent: Any) -> None:

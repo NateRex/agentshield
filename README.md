@@ -4,6 +4,37 @@ AgentShield is a development tool for inspecting and security-testing configured
 agents. The current implementation provides metadata inspection for Microsoft
 Agent Framework (MAF). Inspection requires no interpreter settings or live model.
 
+## Package layout
+
+```text
+src/agentshield/
+    core/                 Shared target contracts and identity rules
+    inspection/
+        interfaces.py     Framework-independent inspection adapter contract
+        service.py        Worker orchestration and inspection lifecycle
+        adapters/maf/     MAF discovery, compatibility, and framework cleanup
+    planning/             Future scan-plan construction and validation
+    execution/            Future suite execution and evaluation
+    cli.py                Command-line entry point
+```
+
+Workflow packages depend on `core`; core does not depend on workflows or framework
+packages. Each workflow owns its interface and framework adapter implementations.
+The inspection service uses `InspectionAdapter`; adapter selection and MAF details
+stay under `inspection/adapters`. Adapters load inside workers, and never require
+framework dependencies merely to import the public packages. Shared framework
+behavior needed by multiple workflows can move into core when that need exists.
+Planning and execution currently reserve package homes; their interfaces will be
+defined alongside their implementations.
+
+Tests mirror these packages: `tests/core`, `tests/inspection`,
+`tests/inspection/adapters/maf`, `tests/planning`, and `tests/execution`, with CLI
+checks in `tests/test_cli.py`. Importable MAF reference targets live beside their
+adapter checks so spawned workers can load them without custom test path setup.
+The documented root imports (`from agentshield import Target, target_factory,
+inspect_target`) remain supported; workflow-specific imports can use
+`agentshield.core` and `agentshield.inspection`.
+
 Install in the same Python 3.12 environment as your application:
 
 ```sh

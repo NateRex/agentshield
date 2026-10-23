@@ -12,7 +12,8 @@ import time
 from multiprocessing.connection import Connection
 from typing import Any
 
-from .target import Target
+from agentshield.core import Target
+from agentshield.core.identity import validate_identity
 
 MAX_REPORT_BYTES = 1_048_576
 
@@ -28,9 +29,10 @@ async def _resolve(value: Any) -> Any:
 
 async def _inspect(reference: str) -> dict[str, Any]:
     """Load an explicit integration and close each resource under its owner."""
-    from .maf import check_versions, close, describe, validate_identity
+    from .adapters import get_adapter
 
-    check_versions()
+    adapter = get_adapter()
+    adapter.check_versions()
     module, separator, attribute = reference.partition(":")
     if not separator or not module or not attribute or ":" in attribute:
         raise ValueError("Use an explicit module:target reference")
@@ -40,11 +42,11 @@ async def _inspect(reference: str) -> dict[str, Any]:
     validate_identity(integration.agent_id)
     agent = await _resolve(integration.build())
     try:
-        return describe(agent, integration.agent_id)
+        return adapter.describe(agent, integration.agent_id)
     finally:
         try:
             # Never call open(): it opens MCP and client integrations for discovery.
-            await close(agent)
+            await adapter.close(agent)
         finally:
             if integration.cleanup is not None:
                 await _resolve(integration.cleanup(agent))

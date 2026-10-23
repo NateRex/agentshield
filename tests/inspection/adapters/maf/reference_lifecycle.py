@@ -5,7 +5,7 @@ from pathlib import Path
 
 from agent_framework import Agent
 from agentshield import target_factory
-from tests.reference_sync import OfflineClient, lookup
+from tests.inspection.adapters.maf.reference_sync import OfflineClient, lookup
 
 
 def record(event):
