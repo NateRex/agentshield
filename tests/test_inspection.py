@@ -45,6 +45,7 @@ def test_async_target_cleanup_and_reset_ownership(tmp_path, monkeypatch):
     ("absent", "AttributeError"),
     ("build", "Entry point must expose Target"),
     ("cleanup_error", "application cleanup failed"),
+    ("oversized", "metadata exceeds 1048576 bytes"),
 ])
 def test_invalid_targets_fail_with_diagnostics(target, diagnostic):
     """Public inspection rejects ambiguous or failing integrations."""
@@ -114,3 +115,25 @@ def test_custom_result_parser_is_not_assumed_to_use_default_encoding():
     """A custom parser requires explicit fixture context for future execution."""
     report = inspect_target("tests.reference_failures:custom")
     assert report["tools"][0]["result_encoding"] == "unknown_custom_or_external"
+
+
+@pytest.mark.parametrize("target", ["target", "collision"])
+def test_resource_owners_cleanup_once_even_on_discovery_failure(target, tmp_path, monkeypatch):
+    """MAF contexts and application resources are released once by their owners."""
+    marker = tmp_path / "lifecycle.txt"
+    monkeypatch.setenv("AGENTSHIELD_LIFECYCLE_MARKER", str(marker))
+    if target == "collision":
+        with pytest.raises(InspectionError, match="identity collision"):
+            inspect_target(f"tests.reference_lifecycle:{target}")
+    else:
+        inspect_target(f"tests.reference_lifecycle:{target}")
+    assert marker.read_text() == "framework\napplication\n"
+
+
+def test_provider_tool_declarations_keep_available_metadata():
+    """Dictionary tools retain descriptions and input schemas without support claims."""
+    report = inspect_target("tests.reference_failures:dictionary")
+    tool = report["tools"][0]
+    assert tool["description"] == "Look up a declared resource"
+    assert tool["input_schema"]["properties"]["query"] == {"type": "string"}
+    assert tool["replacement_support"] == "unsupported"

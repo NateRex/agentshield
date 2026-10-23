@@ -29,6 +29,14 @@ def validate_identity(value: str) -> None:
         raise ValueError(f"Invalid logical identity {value!r}; use letters, digits, _, . or -")
 
 
+async def close(agent: Any) -> None:
+    """Close framework-owned contexts without opening external integrations."""
+    from agent_framework import Agent
+
+    if type(agent) is Agent:
+        await agent.close()
+
+
 def describe(agent: Any, agent_id: str) -> dict[str, Any]:
     """Inspect registered MAF metadata with explicit discovery and seam limits."""
     from agent_framework import Agent, FunctionTool
@@ -51,10 +59,14 @@ def describe(agent: Any, agent_id: str) -> dict[str, Any]:
         identities.add(identity)
         local = type(registered) is FunctionTool and registered.func is not None
         schema = registered.parameters() if isinstance(registered, FunctionTool) else None
+        description = getattr(registered, "description", None)
+        if isinstance(registered, dict):
+            schema = registered.get("parameters")
+            description = registered.get("description")
         parser = getattr(registered, "result_parser", None)
         tools.append({
             "identity": identity, "registered_name": name,
-            "description": getattr(registered, "description", None),
+            "description": description,
             "docstring": inspect.getdoc(registered.func) if local else None,
             "input_schema": schema,
             "metadata_provenance": ["maf.registration", "python.docstring"] if local else ["maf.registration"],

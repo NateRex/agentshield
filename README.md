@@ -68,6 +68,7 @@ itself opens resources, it owns any consequences and partial failure handling.
 The command writes JSON to stdout, warnings and application construction prints
 to stderr, and exits 0 on success or 2 on an inspection failure. The deadline
 covers process startup, imports, construction, metadata inspection, and cleanup.
+Worker metadata is limited to 1 MiB; larger inventories fail with a diagnostic.
 Import failures, unsupported target shapes, ambiguous identities, cleanup errors,
 worker crashes, and timeouts are errors. For Python use:
 
